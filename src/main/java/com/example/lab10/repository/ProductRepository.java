@@ -45,6 +45,27 @@ public class ProductRepository {
         }
     }
 
+    public Optional<Product> getProductById(Integer id) {
+        String sql = "SELECT * FROM products WHERE id = ?";
+        try {
+            Product product = jdbcTemplate.queryForObject(sql, new RowMapper<Product>() {
+                @Override
+                public Product mapRow(ResultSet resultSet, int i) throws SQLException {
+                    Product p = new Product();
+                    p.setId(resultSet.getInt("id"));
+                    p.setName(resultSet.getString("name"));
+                    p.setPrice(resultSet.getDouble("price"));
+                    p.setAvailableStock(resultSet.getInt("available_stock"));
+                    return p;
+                }
+            }, id);
+            return Optional.of(product);
+
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
     public void decrementStock(Product product, int quantity) {
         String sql = "UPDATE products set available_stock = ? WHERE id = ?";
         jdbcTemplate.update(sql, product.getAvailableStock() - quantity, product.getId());

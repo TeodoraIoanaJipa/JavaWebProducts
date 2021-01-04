@@ -32,13 +32,10 @@ public class OrderController {
     @PostMapping("/cancel")
     public ResponseEntity cancelOrder(@RequestParam Integer orderId) {
         try {
-            return ResponseEntity.ok(orderService.cancelOrder(orderId));
+            orderService.cancelOrder(orderId);
+            return ResponseEntity.ok("success");
         } catch (NoOrderFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-//        TODO: Tema 3: Implementati un endpoint responsabil cu anularea unei comanzi plasate:
-//              - schimbati statusul comenzii
-//              - actualizati stocul produselor corespunzator
-//              - deadline:  6 ianuarie 2021
     }
 }

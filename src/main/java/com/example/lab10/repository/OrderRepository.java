@@ -43,7 +43,7 @@ public class OrderRepository {
 
     public void updateOrderStatus(Order order){
         String sql = "UPDATE orders set status = ? WHERE id = ?";
-        jdbcTemplate.update(sql, order.getStatus(), order.getId());
+        jdbcTemplate.update(sql, order.getStatus().name(), order.getId());
     }
 
     public Optional<Order> getOrderById(Integer id) {
@@ -52,7 +52,7 @@ public class OrderRepository {
             Order order = jdbcTemplate.queryForObject(sql, (resultSet, i) -> {
                 Order newOrder = new Order();
                 newOrder.setId(resultSet.getInt("id"));
-                if(resultSet.getString("status").toLowerCase().equals("ACTIVE")){
+                if(resultSet.getString("status").toUpperCase().equals(Status.ACTIVE.name())){
                     newOrder.setStatus(Status.ACTIVE);
                 }else{
                     newOrder.setStatus(Status.CANCELLED);

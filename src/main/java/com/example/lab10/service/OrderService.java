@@ -7,6 +7,7 @@ import com.example.lab10.exception.NoStockAvailableException;
 import com.example.lab10.mapper.OrderMapper;
 import com.example.lab10.model.Order;
 import com.example.lab10.model.OrderItem;
+import com.example.lab10.model.Status;
 import com.example.lab10.repository.ItemRepository;
 import com.example.lab10.repository.OrderRepository;
 import com.example.lab10.repository.ProductRepository;
@@ -43,7 +44,7 @@ public class OrderService {
                         itemOrdered -> {
                             OrderItem item = new OrderItem();
                             var p = productRepository.getProductByName(itemOrdered.getProduct().getName());
-                            if (!p.isEmpty()) {
+                            if (p.isPresent()) {
                                 item.setProduct(p.get());
                                 item.setQuantity(itemOrdered.getQuantity());
                                 if (itemOrdered.getQuantity() > item.getProduct().getAvailableStock()) {
@@ -81,15 +82,29 @@ public class OrderService {
         return orderMapper.toDto(order, itemsToBeOrdered);
     }
 
-    public OrderDto cancelOrder(Integer orderId){
+    private void changeOrderStatus(Integer orderId) {
+        Order order = new Order();
+        order.setId(orderId);
+        order.setStatus(CANCELLED);
+        orderRepository.updateOrderStatus(order);
+    }
+
+    private void incrementOrderItemsStock(Integer orderId) {
+        List<OrderItem> items = itemRepository.getOrderItemsByOrderId(orderId);
+        items.forEach(item -> {
+            productRepository.incrementStock(item.getProduct(), item.getQuantity());
+        });
+    }
+
+    @Transactional
+    public void cancelOrder(Integer orderId) {
         Optional<Order> optionalOrder = orderRepository.getOrderById(orderId);
-        if(optionalOrder.isPresent()){
-            Order order = new Order();
-            order.setId(orderId);
-            order.setStatus(CANCELLED);
-            orderRepository.updateOrderStatus(order);
-            return orderMapper.toDto(order, new ArrayList<>());
-        }else{
+        if (optionalOrder.isPresent() && optionalOrder.get().getStatus().equals(ACTIVE)) {
+            //              - schimbati statusul comenzii
+            changeOrderStatus(orderId);
+            //              - actualizati stocul produselor corespunzator
+            incrementOrderItemsStock(orderId);
+        } else {
             throw new NoOrderFoundException();
         }
     }
