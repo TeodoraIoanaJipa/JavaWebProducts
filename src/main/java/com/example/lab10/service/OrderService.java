@@ -7,14 +7,12 @@ import com.example.lab10.exception.NoStockAvailableException;
 import com.example.lab10.mapper.OrderMapper;
 import com.example.lab10.model.Order;
 import com.example.lab10.model.OrderItem;
-import com.example.lab10.model.Status;
 import com.example.lab10.repository.ItemRepository;
 import com.example.lab10.repository.OrderRepository;
 import com.example.lab10.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
